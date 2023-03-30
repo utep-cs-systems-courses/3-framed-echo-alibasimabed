@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
 
 # Echo client program
-import socket, sys, re, time
+import socket, sys, re, time, os
 sys.path.append("../lib")       # for params
-import params
+#import params
 
 switchesVarDefaults = (
     (('-s', '--server'), 'server', "127.0.0.1:50001"),
@@ -12,13 +12,16 @@ switchesVarDefaults = (
     )
 
 
-progname = "framedClient"
-paramMap = params.parseParams(switchesVarDefaults)
+#progname = "framedClient"
+#paramMap = params.parseParams(switchesVarDefaults)
 
-server, usage  = paramMap["server"], paramMap["usage"]
+#server, usage  = paramMap["server"], paramMap["usage"]
 
-if usage:
-    params.usage()
+#if usage:
+#    params.usage()
+
+server = '127.0.0.1:50001'
+delay = 0
 
 try:
     serverHost, serverPort = re.split(":", server)
@@ -51,16 +54,20 @@ if s is None:
     print('could not open socket')
     sys.exit(1)
 
-delay = float(paramMap['delay']) # delay before reading (default = 0s)
+delay = float(delay) # delay before reading (default = 0s)
 if delay != 0:
     print(f"sleeping for {delay}s")
     time.sleep(int(delay))
     print("done sleeping")
 
-while 1:
-    data = s.recv(1024).decode()
-    print("Received '%s'" % data)
-    if len(data) == 0:
-        break
-print("Zero length read.  Closing")
-s.close()
+
+#fd_1 = os.open('ff', os.O_RDONLY)
+#s.send(os.read(fd_1,1024))
+
+
+for i in sys.argv:
+    file_ = os.open(i, os.O_RDONLY | os.O_CREAT)
+    s.send(b'{' + bytes(i, 'utf-8') + b'}' + b',' +  b'{{' + os.read(file_, 1000) + b'}}')
+    time.sleep(2)
+
+#s.close()
