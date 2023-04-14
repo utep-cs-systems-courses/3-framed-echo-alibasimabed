@@ -1,26 +1,17 @@
 #! /usr/bin/env python3
 
-# Echo client program
+
 import socket, sys, re, time, os
-sys.path.append("../lib")       # for params
-#import params
+
 
 switchesVarDefaults = (
-    (('-s', '--server'), 'server', "127.0.0.1:50001"),
+    (('-s', '--server'), 'server', "127.0.0.1:50000"),
     (('-d', '--delay'), 'delay', "0"),
     (('-?', '--usage'), "usage", False), # boolean (set if present)
     )
 
 
-#progname = "framedClient"
-#paramMap = params.parseParams(switchesVarDefaults)
-
-#server, usage  = paramMap["server"], paramMap["usage"]
-
-#if usage:
-#    params.usage()
-
-server = '127.0.0.1:50001'
+server = '127.0.0.1:50000'
 delay = 0
 
 try:
@@ -61,13 +52,19 @@ if delay != 0:
     print("done sleeping")
 
 
-#fd_1 = os.open('ff', os.O_RDONLY)
-#s.send(os.read(fd_1,1024))
 
+sys.argv.pop(0)
 
 for i in sys.argv:
     file_ = os.open(i, os.O_RDONLY | os.O_CREAT)
-    s.send(b'{' + bytes(i, 'utf-8') + b'}' + b',' +  b'{{' + os.read(file_, 1000) + b'}}')
-    time.sleep(2)
+    msg = os.read(file_, 1000)
+    msg = msg.replace(b'/',b'//')
+    msg = msg.replace(b'{}',b'{{}}')
+    s.send(bytes(i,encoding='utf8'))
+    s.send(b'{}e')
+    s.send(msg)
+    s.send(b'{}e')
 
-#s.close()
+s.send(b'/e')
+
+s.close()
